@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nolan's Proxy</title>
+    <link rel="icon" type="image/png" href="https://www.nolangraysongames.com/Logo.png">
     <style>
         * {
             margin: 0;
@@ -439,6 +440,123 @@
             background: #bd2130;
         }
 
+        .games-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .games-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        body.dark-theme .games-title {
+            color: #e0e0e0;
+        }
+
+        .games-search-bar {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+        }
+
+        .games-search-input {
+            width: 100%;
+            padding: 14px 48px 14px 20px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: box-shadow 0.2s;
+            background: white;
+            color: #202124;
+        }
+
+        body.dark-theme .games-search-input {
+            background: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #4d4d4d;
+        }
+
+        .games-search-input:focus {
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            border-color: transparent;
+        }
+
+        .games-search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #667eea;
+            padding: 8px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .game-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        body.dark-theme .game-card {
+            background: #2d2d2d;
+        }
+
+        .game-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .game-card-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #e0e0e0;
+        }
+
+        .game-card-content {
+            padding: 16px;
+        }
+
+        .game-card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .game-card-title {
+            color: #e0e0e0;
+        }
+
+        .game-card-desc {
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        body.dark-theme .game-card-desc {
+            color: #b0b0b0;
+        }
+
         .tabs-container {
             display: flex;
             overflow-x: auto;
@@ -767,6 +885,15 @@
         const menuBtn = document.getElementById('menuBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
 
+        const games = [
+            {
+                title: 'Slope',
+                desc: 'Navigate a ball down a steep slope',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/198.png',
+                url: 'slope.html'
+            }
+        ];
+
         const searchResults = {
             'javascript': [
                 { title: 'JavaScript - MDN Web Docs', url: 'developer.mozilla.org/JavaScript', desc: 'JavaScript (JS) is a lightweight interpreted programming language with first-class functions. Most well-known as the scripting language for Web pages...' },
@@ -945,11 +1072,24 @@
 
         function getGamesPageHTML() {
             return `
-                <div class="search-page">
-                    <div class="search-logo">Games</div>
-                    <div style="max-width: 600px; padding: 20px; text-align: left;">
-                        <h3 style="color: #202124; margin-bottom: 20px;">Browser Games</h3>
-                        <p style="color: #5f6368; line-height: 1.6;">Games coming soon...</p>
+                <div class="games-container">
+                    <div class="games-title">Games</div>
+                    
+                    <div class="games-search-bar">
+                        <input type="text" class="games-search-input" id="gamesSearchInput" placeholder="Search games..." oninput="filterGames(this.value)">
+                        <button class="games-search-btn">🔍</button>
+                    </div>
+                    
+                    <div class="games-grid" id="gamesGrid">
+                        ${games.map(game => `
+                            <div class="game-card" onclick="loadGame('${game.url}', '${game.title}')" data-title="${game.title.toLowerCase()}" data-desc="${game.desc.toLowerCase()}">
+                                <img src="${game.image}" alt="${game.title}" class="game-card-image" onerror="this.style.display='none'">
+                                <div class="game-card-content">
+                                    <div class="game-card-title">${game.title}</div>
+                                    <div class="game-card-desc">${game.desc}</div>
+                                </div>
+                            </div>
+                        `).join('')}
                     </div>
                 </div>
             `;
@@ -1076,6 +1216,12 @@
                 tab.title = 'Games';
                 urlBar.value = tab.url;
                 renderTabs();
+            } else if (item.startsWith('game:')) {
+                const gameUrl = item.substring(5);
+                const game = games.find(g => g.url === gameUrl);
+                if (game) {
+                    window.loadGame(gameUrl, game.title);
+                }
             } else {
                 loadPage(item);
             }
@@ -1105,6 +1251,12 @@
                 tab.title = 'Games';
                 urlBar.value = tab.url;
                 renderTabs();
+            } else if (item.startsWith('game:')) {
+                const gameUrl = item.substring(5);
+                const game = games.find(g => g.url === gameUrl);
+                if (game) {
+                    window.loadGame(gameUrl, game.title);
+                }
             } else {
                 loadPage(item);
             }
@@ -1132,6 +1284,12 @@
                 tab.title = 'Games';
                 urlBar.value = tab.url;
                 renderTabs();
+            } else if (item.startsWith('game:')) {
+                const gameUrl = item.substring(5);
+                const game = games.find(g => g.url === gameUrl);
+                if (game) {
+                    window.loadGame(gameUrl, game.title);
+                }
             } else {
                 loadPage(item);
             }
@@ -1226,6 +1384,40 @@
                 localStorage.removeItem('nolanproxy_bgeffect');
                 location.reload();
             }
+        };
+
+        window.filterGames = function(searchTerm) {
+            const grid = document.getElementById('gamesGrid');
+            const cards = grid.querySelectorAll('.game-card');
+            const term = searchTerm.toLowerCase();
+            
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title');
+                const desc = card.getAttribute('data-desc');
+                
+                if (title.includes(term) || desc.includes(term)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        };
+
+        window.loadGame = function(gameUrl, gameTitle) {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            content.innerHTML = `
+                <div class="iframe-container">
+                    <iframe src="${gameUrl}" sandbox="allow-scripts allow-same-origin allow-pointer-lock"></iframe>
+                </div>
+            `;
+            
+            tab.url = `nolansproxy.com/games/${gameUrl}`;
+            tab.title = gameTitle;
+            urlBar.value = tab.url;
+            addToHistory(`game:${gameUrl}`);
+            renderTabs();
         };
 
         // Apply saved settings on page load

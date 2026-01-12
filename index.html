@@ -1,1 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nolan's Proxy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        body.particles-bg {
+            position: relative;
+        }
+
+        body.particles-bg::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: particlesMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body.dark-theme.particles-bg::before {
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px);
+        }
+
+        body.waves-bg {
+            position: relative;
+        }
+
+        body.waves-bg::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.2) 50%, transparent 70%);
+            background-size: 200% 200%;
+            animation: wavesMove 15s ease infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        body.dark-theme.waves-bg::before {
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            background-size: 200% 200%;
+        }
+
+        .browser-window {
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes particlesMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50px); }
+        }
+
+        @keyframes wavesMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .browser-window {
+            width: 100%;
+            max-width: 1200px;
+            height: 95vh;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s;
+        }
+
+        body.dark-theme .browser-window {
+            background: #1e1e1e;
+        }
+
+        body.dark-theme .browser-header {
+            background: #2d2d2d;
+            border-bottom-color: #3d3d3d;
+        }
+
+        body.dark-theme .top-bar {
+            background: #2d2d2d;
+        }
+
+        body.dark-theme .tabs-container {
+            background: #252525;
+        }
+
+        body.dark-theme .tab {
+            background: #252525;
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .tab.active {
+            background: #1e1e1e;
+        }
+
+        body.dark-theme .address-bar {
+            background: #3d3d3d;
+        }
+
+        body.dark-theme .address-bar input {
+            background: #3d3d3d;
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .browser-content {
+            background: #1e1e1e;
+        }
+
+        body.dark-theme .search-page {
+            background: #1e1e1e;
+        }
+
+        body.dark-theme .search-logo {
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .search-input {
+            background: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #4d4d4d;
+        }
+
+        body.dark-theme .dropdown-menu {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .dropdown-item {
+            color: #e0e0e0;
+        }
+
+        body.dark-theme .dropdown-item:hover {
+            background: #3d3d3d;
+        }
+
+        .browser-header {
+            background: #f1f3f4;
+            border-bottom: 1px solid #dadce0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-bar {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            order: 2;
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+
+        .traffic-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .traffic-light.red { background: #ff5f56; }
+        .traffic-light.yellow { background: #ffbd2e; }
+        .traffic-light.green { background: #27c93f; }
+
+        .nav-buttons {
+            display: flex;
+            gap: 4px;
+            margin-left: 8px;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #5f6368;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #e8eaed;
+        }
+
+        .nav-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .address-bar {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 24px;
+            padding: 8px 16px;
+            margin: 0 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .address-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #202124;
+        }
+
+        .new-tab-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #5f6368;
+            transition: background 0.2s;
+        }
+
+        .new-tab-btn:hover {
+            background: #e8eaed;
+        }
+
+        .menu-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #5f6368;
+            transition: background 0.2s;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .menu-btn:hover {
+            background: #e8eaed;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 8px 0;
+            min-width: 180px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            transition: background 0.2s;
+            color: #202124;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f3f4;
+        }
+
+        .external-icon {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .settings-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #202124;
+            margin-bottom: 40px;
+        }
+
+        body.dark-theme .settings-title {
+            color: #e0e0e0;
+        }
+
+        .settings-section {
+            margin-bottom: 40px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        body.dark-theme .settings-section {
+            background: #2d2d2d;
+        }
+
+        .settings-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #202124;
+            margin-bottom: 20px;
+        }
+
+        body.dark-theme .settings-section-title {
+            color: #e0e0e0;
+        }
+
+        .setting-item {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #5f6368;
+            margin-bottom: 8px;
+        }
+
+        body.dark-theme .setting-label {
+            color: #b0b0b0;
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #202124;
+            background: white;
+            cursor: pointer;
+        }
+
+        body.dark-theme .setting-select {
+            background: #3d3d3d;
+            color: #e0e0e0;
+            border-color: #4d4d4d;
+        }
+
+        .setting-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            transition: background 0.2s;
+        }
+
+        .setting-button:hover {
+            background: #5568d3;
+        }
+
+        .setting-button.danger {
+            background: #dc3545;
+        }
+
+        .setting-button.danger:hover {
+            background: #c82333;
+        }
+
+        body.dark-theme .setting-button {
+            background: #5568d3;
+        }
+
+        body.dark-theme .setting-button:hover {
+            background: #4557b8;
+        }
+
+        body.dark-theme .setting-button.danger {
+            background: #c82333;
+        }
+
+        body.dark-theme .setting-button.danger:hover {
+            background: #bd2130;
+        }
+
+        .tabs-container {
+            display: flex;
+            overflow-x: auto;
+            overflow-y: hidden;
+            padding: 0 8px;
+            background: #dee1e6;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            order: 1;
+            align-items: flex-end;
+        }
+
+        .tabs-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #dee1e6;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            min-width: 150px;
+            max-width: 240px;
+            border-radius: 8px 8px 0 0;
+            transition: background 0.2s;
+            position: relative;
+            margin-right: 2px;
+        }
+
+        .tab:hover {
+            background: #e8eaed;
+        }
+
+        .tab.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+            color: #5f6368;
+        }
+
+        .tab.active .tab-title {
+            color: #202124;
+        }
+
+        .tab-close {
+            width: 20px;
+            height: 20px;
+            border: none;
+            background: transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #5f6368;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tab-close:hover {
+            background: rgba(0,0,0,0.1);
+        }
+
+        .browser-content {
+            flex: 1;
+            overflow: auto;
+            background: white;
+        }
+
+        .search-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .search-logo {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 48px 16px 20px;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            font-size: 16px;
+            outline: none;
+            transition: box-shadow 0.2s;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+            border-color: transparent;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #667eea;
+            padding: 8px;
+        }
+
+        .results-page {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-item {
+            margin-bottom: 28px;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-url {
+            font-size: 14px;
+            color: #5f6368;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .result-title {
+            font-size: 20px;
+            color: #1a0dab;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+
+        .result-title:hover {
+            text-decoration: underline;
+        }
+
+        .result-desc {
+            font-size: 14px;
+            color: #4d5156;
+            line-height: 1.6;
+        }
+
+        .iframe-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .browser-window {
+                height: 100vh;
+                border-radius: 0;
+                max-width: 100%;
+            }
+
+            .traffic-lights {
+                display: none;
+            }
+
+            .nav-buttons {
+                margin-left: 0;
+            }
+
+            .nav-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+
+            .address-bar {
+                padding: 6px 12px;
+                margin: 0 4px;
+            }
+
+            .address-bar input {
+                font-size: 13px;
+            }
+
+            .new-tab-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 18px;
+            }
+
+            .tab {
+                min-width: 120px;
+                max-width: 180px;
+                padding: 6px 12px;
+            }
+
+            .tab-title {
+                font-size: 12px;
+            }
+
+            .search-logo {
+                font-size: 36px;
+                margin-bottom: 20px;
+            }
+
+            .search-input {
+                padding: 12px 40px 12px 16px;
+                font-size: 14px;
+            }
+
+            .results-page {
+                padding: 12px;
+            }
+
+            .result-title {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 6px 8px;
+            }
+
+            .nav-btn {
+                width: 26px;
+                height: 26px;
+                font-size: 14px;
+            }
+
+            .tab {
+                min-width: 100px;
+                max-width: 150px;
+                padding: 6px 10px;
+            }
+
+            .search-logo {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="browser-window">
+        <div class="browser-header">
+            <div class="top-bar">
+                <div class="traffic-lights">
+                    <div class="traffic-light red"></div>
+                    <div class="traffic-light yellow"></div>
+                    <div class="traffic-light green"></div>
+                </div>
+                <div class="nav-buttons">
+                    <button class="nav-btn" id="backBtn" disabled>←</button>
+                    <button class="nav-btn" id="forwardBtn" disabled>→</button>
+                    <button class="nav-btn" id="refreshBtn">↻</button>
+                </div>
+                <div class="address-bar">
+                    <input type="text" id="urlBar" placeholder="Search or enter URL">
+                </div>
+                <button class="menu-btn" id="menuBtn">▼</button>
+            </div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" onclick="openSettings()">Settings</div>
+                <div class="dropdown-item" onclick="openGames()">Games</div>
+                <div class="dropdown-item" onclick="openPortal()">
+                    <span>Portal</span>
+                    <span class="external-icon">↗</span>
+                </div>
+            </div>
+            <div class="tabs-container" id="tabsContainer"></div>
+        </div>
+        <div class="browser-content" id="content"></div>
+    </div>
+
+    <script>
+        let tabs = [];
+        let activeTabId = null;
+        let tabIdCounter = 0;
+        let currentTheme = localStorage.getItem('nolanproxy_theme') || 'light';
+        let currentBgEffect = localStorage.getItem('nolanproxy_bgeffect') || 'none';
+
+        const content = document.getElementById('content');
+        const urlBar = document.getElementById('urlBar');
+        const tabsContainer = document.getElementById('tabsContainer');
+        const newTabBtn = document.getElementById('newTabBtn');
+        const backBtn = document.getElementById('backBtn');
+        const forwardBtn = document.getElementById('forwardBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        const searchResults = {
+            'javascript': [
+                { title: 'JavaScript - MDN Web Docs', url: 'developer.mozilla.org/JavaScript', desc: 'JavaScript (JS) is a lightweight interpreted programming language with first-class functions. Most well-known as the scripting language for Web pages...' },
+                { title: 'JavaScript Tutorial - W3Schools', url: 'w3schools.com/js', desc: 'Learn JavaScript with our comprehensive tutorials. JavaScript is the programming language of the Web.' },
+                { title: 'JavaScript - Wikipedia', url: 'wikipedia.org/wiki/JavaScript', desc: 'JavaScript, often abbreviated as JS, is a programming language that is one of the core technologies of the World Wide Web, alongside HTML and CSS.' }
+            ],
+            'python': [
+                { title: 'Welcome to Python.org', url: 'python.org', desc: 'The official home of the Python Programming Language. Python is powerful and fast, plays well with others, runs everywhere, is friendly and easy to learn.' },
+                { title: 'Python Tutorial - W3Schools', url: 'w3schools.com/python', desc: 'Learn Python. Python is a popular programming language. Python can be used on a server to create web applications.' },
+                { title: 'Python (programming language) - Wikipedia', url: 'wikipedia.org/wiki/Python', desc: 'Python is a high-level, general-purpose programming language. Its design philosophy emphasizes code readability with the use of significant indentation.' }
+            ],
+            'default': [
+                { title: 'Search Results for "{query}"', url: 'example.com/search', desc: 'Your search returned various results. This is a demo browser showing how search results might appear.' },
+                { title: 'Learn More About {query}', url: 'example.com/learn', desc: 'Discover comprehensive information, tutorials, and resources related to {query}.' },
+                { title: '{query} - Complete Guide', url: 'example.com/guide', desc: 'An in-depth guide covering everything you need to know about {query}. Perfect for beginners and experts alike.' }
+            ]
+        };
+
+        class Tab {
+            constructor(id) {
+                this.id = id;
+                this.title = 'New Tab';
+                this.url = '';
+                this.history = ['home'];
+                this.historyIndex = 0;
+                this.content = '';
+            }
+        }
+
+        function createTab() {
+            const tab = new Tab(tabIdCounter++);
+            tabs.push(tab);
+            renderTabs();
+            switchToTab(tab.id);
+            return tab;
+        }
+
+        function closeTab(tabId) {
+            const index = tabs.findIndex(t => t.id === tabId);
+            if (index === -1) return;
+            
+            tabs.splice(index, 1);
+            
+            if (tabs.length === 0) {
+                createTab();
+                return;
+            }
+            
+            if (activeTabId === tabId) {
+                const newActiveIndex = Math.min(index, tabs.length - 1);
+                switchToTab(tabs[newActiveIndex].id);
+            }
+            
+            renderTabs();
+        }
+
+        function switchToTab(tabId) {
+            const tab = tabs.find(t => t.id === tabId);
+            if (!tab) return;
+            
+            if (activeTabId !== null) {
+                const currentTab = tabs.find(t => t.id === activeTabId);
+                if (currentTab) {
+                    currentTab.content = content.innerHTML;
+                }
+            }
+            
+            activeTabId = tabId;
+            content.innerHTML = tab.content || getHomePageHTML();
+            urlBar.value = tab.url;
+            renderTabs();
+            updateNav();
+        }
+
+        function renderTabs() {
+            const tabsHTML = tabs.map(tab => `
+                <button class="tab ${tab.id === activeTabId ? 'active' : ''}" onclick="switchToTab(${tab.id})">
+                    <span class="tab-title">${tab.title}</span>
+                    <button class="tab-close" onclick="event.stopPropagation(); closeTab(${tab.id})">×</button>
+                </button>
+            `).join('');
+            
+            tabsContainer.innerHTML = tabsHTML + '<button class="new-tab-btn" id="newTabBtn">+</button>';
+            
+            // Re-attach new tab button listener
+            const newTabButton = document.getElementById('newTabBtn');
+            if (newTabButton) {
+                newTabButton.addEventListener('click', () => {
+                    createTab();
+                });
+            }
+        }
+
+        function getActiveTab() {
+            return tabs.find(t => t.id === activeTabId);
+        }
+
+        function updateNav() {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            backBtn.disabled = tab.historyIndex <= 0;
+            forwardBtn.disabled = tab.historyIndex >= tab.history.length - 1;
+        }
+
+        function addToHistory(url) {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            if (tab.historyIndex < tab.history.length - 1) {
+                tab.history = tab.history.slice(0, tab.historyIndex + 1);
+            }
+            tab.history.push(url);
+            tab.historyIndex = tab.history.length - 1;
+            updateNav();
+        }
+
+        function getHomePageHTML() {
+            return `
+                <div class="search-page">
+                    <div class="search-logo">Nolan's Proxy</div>
+                    <div class="search-box">
+                        <input type="text" class="search-input" id="searchInput" placeholder="Search the web...">
+                        <button class="search-btn" id="mainSearchBtn">🔍</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getSettingsPageHTML() {
+            return `
+                <div class="settings-container">
+                    <div class="settings-title">Settings</div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Customization</div>
+                        
+                        <div class="setting-item">
+                            <label class="setting-label">Theme</label>
+                            <select class="setting-select" id="themeSelect" onchange="changeTheme(this.value)">
+                                <option value="light" ${currentTheme === 'light' ? 'selected' : ''}>Default/Light</option>
+                                <option value="dark" ${currentTheme === 'dark' ? 'selected' : ''}>Dark</option>
+                            </select>
+                        </div>
+                        
+                        <div class="setting-item">
+                            <label class="setting-label">Background Effects</label>
+                            <select class="setting-select" id="bgEffectSelect" onchange="changeBgEffect(this.value)">
+                                <option value="none" ${currentBgEffect === 'none' ? 'selected' : ''}>No Effects</option>
+                                <option value="particles" ${currentBgEffect === 'particles' ? 'selected' : ''}>Particles</option>
+                                <option value="waves" ${currentBgEffect === 'waves' ? 'selected' : ''}>Waves</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Cloaking</div>
+                        
+                        <div class="setting-item">
+                            <button class="setting-button" onclick="launchInAboutBlank()">Launch in about:blank</button>
+                            <button class="setting-button" onclick="launchInBlob()">Launch in blob:</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Data Management</div>
+                        
+                        <div class="setting-item">
+                            <button class="setting-button danger" onclick="resetLocalData()">Reset Local Data</button>
+                            <p style="font-size: 12px; color: #5f6368; margin-top: 8px;">This will clear all saved settings and refresh the page.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getGamesPageHTML() {
+            return `
+                <div class="search-page">
+                    <div class="search-logo">Games</div>
+                    <div style="max-width: 600px; padding: 20px; text-align: left;">
+                        <h3 style="color: #202124; margin-bottom: 20px;">Browser Games</h3>
+                        <p style="color: #5f6368; line-height: 1.6;">Games coming soon...</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showSearchPage() {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            content.innerHTML = getHomePageHTML();
+            tab.url = '';
+            tab.title = 'New Tab';
+            urlBar.value = '';
+            renderTabs();
+            attachSearchListeners();
+        }
+
+        function showResults(query) {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            const results = searchResults[query.toLowerCase()] || 
+                searchResults.default.map(r => ({
+                    ...r,
+                    title: r.title.replace('{query}', query),
+                    desc: r.desc.replace('{query}', query)
+                }));
+
+            content.innerHTML = `
+                <div class="results-page">
+                    ${results.map(r => `
+                        <div class="result-item">
+                            <div class="result-url">${r.url}</div>
+                            <div class="result-title" onclick="loadPage('${r.url}')">${r.title}</div>
+                            <div class="result-desc">${r.desc}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            tab.url = `nolansproxy.com/search?q=${query}`;
+            tab.title = `${query} - Search`;
+            urlBar.value = tab.url;
+            addToHistory(`search:${query}`);
+            renderTabs();
+        }
+
+        function loadPage(url) {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            content.innerHTML = `
+                <div class="iframe-container">
+                    <iframe src="${url}" sandbox="allow-scripts allow-same-origin"></iframe>
+                </div>
+            `;
+            
+            tab.url = url;
+            tab.title = url.replace(/^https?:\/\//, '').split('/')[0];
+            urlBar.value = url;
+            addToHistory(url);
+            renderTabs();
+        }
+
+        function handleSearch(query) {
+            if (!query.trim()) return;
+            
+            if (query.includes('.') && !query.includes(' ')) {
+                loadPage(query);
+            } else {
+                showResults(query);
+            }
+        }
+
+        function attachSearchListeners() {
+            const newSearchInput = document.getElementById('searchInput');
+            const newSearchBtn = document.getElementById('mainSearchBtn');
+            
+            if (newSearchInput) {
+                newSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        handleSearch(newSearchInput.value);
+                    }
+                });
+            }
+            
+            if (newSearchBtn) {
+                newSearchBtn.addEventListener('click', () => {
+                    handleSearch(newSearchInput.value);
+                });
+            }
+        }
+
+        urlBar.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch(urlBar.value);
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            const tab = getActiveTab();
+            if (!tab || tab.historyIndex <= 0) return;
+            
+            tab.historyIndex--;
+            const item = tab.history[tab.historyIndex];
+            
+            if (item.startsWith('search:')) {
+                showResults(item.substring(7));
+            } else if (item === 'home') {
+                showSearchPage();
+            } else if (item === 'settings') {
+                content.innerHTML = getSettingsPageHTML();
+                tab.url = 'nolansproxy.com/settings';
+                tab.title = 'Settings';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else if (item === 'games') {
+                content.innerHTML = getGamesPageHTML();
+                tab.url = 'nolansproxy.com/games';
+                tab.title = 'Games';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else {
+                loadPage(item);
+            }
+            updateNav();
+        });
+
+        forwardBtn.addEventListener('click', () => {
+            const tab = getActiveTab();
+            if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+            
+            tab.historyIndex++;
+            const item = tab.history[tab.historyIndex];
+            
+            if (item.startsWith('search:')) {
+                showResults(item.substring(7));
+            } else if (item === 'home') {
+                showSearchPage();
+            } else if (item === 'settings') {
+                content.innerHTML = getSettingsPageHTML();
+                tab.url = 'nolansproxy.com/settings';
+                tab.title = 'Settings';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else if (item === 'games') {
+                content.innerHTML = getGamesPageHTML();
+                tab.url = 'nolansproxy.com/games';
+                tab.title = 'Games';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else {
+                loadPage(item);
+            }
+            updateNav();
+        });
+
+        refreshBtn.addEventListener('click', () => {
+            const tab = getActiveTab();
+            if (!tab || tab.historyIndex < 0) return;
+            
+            const item = tab.history[tab.historyIndex];
+            if (item.startsWith('search:')) {
+                showResults(item.substring(7));
+            } else if (item === 'home') {
+                showSearchPage();
+            } else if (item === 'settings') {
+                content.innerHTML = getSettingsPageHTML();
+                tab.url = 'nolansproxy.com/settings';
+                tab.title = 'Settings';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else if (item === 'games') {
+                content.innerHTML = getGamesPageHTML();
+                tab.url = 'nolansproxy.com/games';
+                tab.title = 'Games';
+                urlBar.value = tab.url;
+                renderTabs();
+            } else {
+                loadPage(item);
+            }
+        });
+
+        window.loadPage = loadPage;
+        window.switchToTab = switchToTab;
+        window.closeTab = closeTab;
+
+        // Apply saved settings on page load
+        applySavedSettings();
+
+        // Menu functions
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', () => {
+            dropdownMenu.classList.remove('show');
+        });
+
+        window.openSettings = function() {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            content.innerHTML = getSettingsPageHTML();
+            tab.url = 'nolansproxy.com/settings';
+            tab.title = 'Settings';
+            urlBar.value = tab.url;
+            addToHistory('settings');
+            renderTabs();
+            dropdownMenu.classList.remove('show');
+        };
+
+        window.openGames = function() {
+            const tab = getActiveTab();
+            if (!tab) return;
+            
+            content.innerHTML = getGamesPageHTML();
+            tab.url = 'nolansproxy.com/games';
+            tab.title = 'Games';
+            urlBar.value = tab.url;
+            addToHistory('games');
+            renderTabs();
+            dropdownMenu.classList.remove('show');
+        };
+
+        window.openPortal = function() {
+            window.open('https://www.nolangraysongames.com', '_blank');
+            dropdownMenu.classList.remove('show');
+        };
+
+        window.changeTheme = function(theme) {
+            currentTheme = theme;
+            localStorage.setItem('nolanproxy_theme', theme);
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+            } else {
+                document.body.classList.remove('dark-theme');
+            }
+        };
+
+        window.changeBgEffect = function(effect) {
+            currentBgEffect = effect;
+            localStorage.setItem('nolanproxy_bgeffect', effect);
+            document.body.classList.remove('particles-bg', 'waves-bg');
+            if (effect === 'particles') {
+                document.body.classList.add('particles-bg');
+            } else if (effect === 'waves') {
+                document.body.classList.add('waves-bg');
+            }
+        };
+
+        window.launchInAboutBlank = function() {
+            const newWindow = window.open('about:blank', '_blank');
+            const htmlContent = document.documentElement.outerHTML;
+            newWindow.document.write(htmlContent);
+            newWindow.document.close();
+        };
+
+        window.launchInBlob = function() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, '_blank');
+        };
+
+        window.resetLocalData = function() {
+            if (confirm('Are you sure you want to reset all local data? This will clear your settings and refresh the page.')) {
+                localStorage.removeItem('nolanproxy_theme');
+                localStorage.removeItem('nolanproxy_bgeffect');
+                location.reload();
+            }
+        };
+
+        // Apply saved settings on page load
+        function applySavedSettings() {
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+            if (currentBgEffect === 'particles') {
+                document.body.classList.add('particles-bg');
+            } else if (currentBgEffect === 'waves') {
+                document.body.classList.add('waves-bg');
+            }
+        }
+
+        // Initialize first tab
+        createTab();
+    </script>
+</body>
+</html>

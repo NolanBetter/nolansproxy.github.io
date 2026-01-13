@@ -12,6 +12,29 @@
             box-sizing: border-box;
         }
 
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        body.dark-theme ::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #6a4190 100%);
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -101,6 +124,18 @@
             display: flex;
             flex-direction: column;
             transition: background 0.3s;
+            animation: browserFadeIn 0.5s ease-out;
+        }
+
+        @keyframes browserFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
         }
 
         body.dark-theme .browser-window {
@@ -217,16 +252,46 @@
             justify-content: center;
             font-size: 18px;
             color: #5f6368;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
-        .nav-btn:hover {
+        .nav-btn:hover:not(:disabled) {
             background: #e8eaed;
+            transform: scale(1.1);
+        }
+
+        .nav-btn:active:not(:disabled) {
+            transform: scale(0.95);
         }
 
         .nav-btn:disabled {
             color: #ccc;
             cursor: not-allowed;
+        }
+
+        /* Tooltip */
+        .nav-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .nav-btn:hover::after {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
         }
 
         .address-bar {
@@ -513,16 +578,38 @@
             border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
         }
 
         body.dark-theme .game-card {
             background: #2d2d2d;
         }
 
+        .game-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
         .game-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(102, 126, 234, 0.3);
+        }
+
+        .game-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-card:active {
+            transform: translateY(-4px) scale(1.01);
         }
 
         .game-card-image {
@@ -530,10 +617,17 @@
             height: 200px;
             object-fit: cover;
             background: #e0e0e0;
+            transition: transform 0.4s ease;
+        }
+
+        .game-card:hover .game-card-image {
+            transform: scale(1.1);
         }
 
         .game-card-content {
             padding: 16px;
+            position: relative;
+            z-index: 2;
         }
 
         .game-card-title {
@@ -554,6 +648,189 @@
         }
 
         body.dark-theme .game-card-desc {
+            color: #b0b0b0;
+        }
+
+        .loading-bar {
+            height: 3px;
+            background: #e0e0e0;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .loading-bar.active {
+            display: block;
+        }
+
+        .loading-bar-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc04, #ea4335);
+            background-size: 200% 100%;
+            width: 100%;
+            animation: loadingGradient 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes loadingGradient {
+            0% {
+                background-position: 0% 0%;
+                transform: translateX(-100%);
+            }
+            50% {
+                background-position: 100% 0%;
+                transform: translateX(0%);
+            }
+            100% {
+                background-position: 200% 0%;
+                transform: translateX(100%);
+            }
+        }
+
+        .bookmarks-bar {
+            background: rgba(248, 249, 250, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(218, 220, 224, 0.5);
+            scrollbar-width: thin;
+        }
+
+        body.dark-theme .bookmarks-bar {
+            background: rgba(45, 45, 45, 0.8);
+            border-bottom-color: rgba(61, 61, 61, 0.5);
+        }
+
+        .bookmark-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 13px;
+            color: #202124;
+            transition: all 0.3s ease;
+            position: relative;
+            animation: bookmarkSlideIn 0.3s ease-out;
+        }
+
+        @keyframes bookmarkSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        body.dark-theme .bookmark-item {
+            background: rgba(61, 61, 61, 0.9);
+            color: #e0e0e0;
+        }
+
+        .bookmark-item:hover {
+            background: rgba(232, 234, 237, 0.95);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        body.dark-theme .bookmark-item:hover {
+            background: rgba(77, 77, 77, 0.95);
+        }
+
+        .bookmark-delete {
+            margin-left: 4px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .bookmark-item:hover .bookmark-delete {
+            opacity: 1;
+        }
+
+        .add-bookmark-btn {
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+
+        .add-bookmark-btn:hover {
+            background: #5568d3;
+        }
+
+        .recently-visited {
+            margin-top: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .recently-visited-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #5f6368;
+            margin-bottom: 12px;
+        }
+
+        body.dark-theme .recently-visited-title {
+            color: #b0b0b0;
+        }
+
+        .recent-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        body.dark-theme .recent-item {
+            background: #2d2d2d;
+        }
+
+        .recent-item:hover {
+            background: #e8eaed;
+        }
+
+        body.dark-theme .recent-item:hover {
+            background: #3d3d3d;
+        }
+
+        .recent-item-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #202124;
+        }
+
+        body.dark-theme .recent-item-title {
+            color: #e0e0e0;
+        }
+
+        .recent-item-url {
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        body.dark-theme .recent-item-url {
             color: #b0b0b0;
         }
 
@@ -680,6 +957,16 @@
             -webkit-text-fill-color: transparent;
             margin-bottom: 30px;
             text-align: center;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
         }
 
         .search-box {
@@ -872,9 +1159,9 @@
                     <div class="traffic-light green"></div>
                 </div>
                 <div class="nav-buttons">
-                    <button class="nav-btn" id="backBtn" disabled>←</button>
-                    <button class="nav-btn" id="forwardBtn" disabled>→</button>
-                    <button class="nav-btn" id="refreshBtn">↻</button>
+                    <button class="nav-btn" id="backBtn" disabled data-tooltip="Back (Ctrl+←)">←</button>
+                    <button class="nav-btn" id="forwardBtn" disabled data-tooltip="Forward (Ctrl+→)">→</button>
+                    <button class="nav-btn" id="refreshBtn" data-tooltip="Refresh (Ctrl+R)">↻</button>
                 </div>
                 <div class="address-bar">
                     <input type="text" id="urlBar" placeholder="Search or enter URL">
@@ -895,6 +1182,10 @@
             </div>
             <div class="tabs-container" id="tabsContainer"></div>
         </div>
+        <div class="loading-bar" id="loadingBar">
+            <div class="loading-bar-progress"></div>
+        </div>
+        <div class="bookmarks-bar" id="bookmarksBar"></div>
         <div class="browser-content" id="content"></div>
     </div>
 
@@ -904,6 +1195,9 @@
         let tabIdCounter = 0;
         let currentTheme = localStorage.getItem('nolanproxy_theme') || 'light';
         let currentBgEffect = localStorage.getItem('nolanproxy_bgeffect') || 'none';
+        let bookmarks = JSON.parse(localStorage.getItem('nolanproxy_bookmarks') || '[]');
+        let recentlyVisited = JSON.parse(localStorage.getItem('nolanproxy_recent') || '[]');
+        let tabCloaking = localStorage.getItem('nolanproxy_cloaking') || 'none';
 
         const content = document.getElementById('content');
         const urlBar = document.getElementById('urlBar');
@@ -914,6 +1208,8 @@
         const refreshBtn = document.getElementById('refreshBtn');
         const menuBtn = document.getElementById('menuBtn');
         const dropdownMenu = document.getElementById('dropdownMenu');
+        const loadingBar = document.getElementById('loadingBar');
+        const bookmarksBar = document.getElementById('bookmarksBar');
 
         const games = [
             {
@@ -1043,6 +1339,7 @@
             content.innerHTML = tab.content || getHomePageHTML();
             urlBar.value = tab.url;
             renderTabs();
+            renderBookmarks();
             updateNav();
             
             // Reattach listeners if on home page
@@ -1095,6 +1392,20 @@
         }
 
         function getHomePageHTML() {
+            const recentHTML = recentlyVisited.length > 0 ? `
+                <div class="recently-visited">
+                    <div class="recently-visited-title">Recently Visited</div>
+                    ${recentlyVisited.slice(0, 3).map(item => `
+                        <div class="recent-item" onclick="loadPage('${item.url}')">
+                            <div>
+                                <div class="recent-item-title">${item.title}</div>
+                                <div class="recent-item-url">${item.url}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
             return `
                 <div class="search-page">
                     <a href="https://github.com/NolanBetter/nolansproxy.github.io" target="_blank">
@@ -1105,6 +1416,7 @@
                         <input type="text" class="search-input" id="searchInput" placeholder="Search the web...">
                         <button class="search-btn" id="mainSearchBtn">🔍</button>
                     </div>
+                    ${recentHTML}
                 </div>
             `;
         }
@@ -1131,6 +1443,20 @@
                                 <option value="none" ${currentBgEffect === 'none' ? 'selected' : ''}>No Effects</option>
                                 <option value="particles" ${currentBgEffect === 'particles' ? 'selected' : ''}>Particles</option>
                                 <option value="waves" ${currentBgEffect === 'waves' ? 'selected' : ''}>Waves</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <div class="settings-section-title">Tab Cloaking</div>
+                        
+                        <div class="setting-item">
+                            <label class="setting-label">Pretend to be...</label>
+                            <select class="setting-select" id="cloakingSelect" onchange="changeTabCloaking(this.value)">
+                                <option value="none" ${tabCloaking === 'none' ? 'selected' : ''}>None (Nolan's Proxy)</option>
+                                <option value="googledocs" ${tabCloaking === 'googledocs' ? 'selected' : ''}>Google Docs</option>
+                                <option value="googleclassroom" ${tabCloaking === 'googleclassroom' ? 'selected' : ''}>Google Classroom</option>
+                                <option value="schoology" ${tabCloaking === 'schoology' ? 'selected' : ''}>Schoology</option>
                             </select>
                         </div>
                     </div>
@@ -1390,6 +1716,34 @@
 
         // Apply saved settings on page load
         applySavedSettings();
+        applyTabCloaking();
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+T - New tab
+            if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                createTab();
+            }
+            // Ctrl+W - Close tab
+            if (e.ctrlKey && e.key === 'w') {
+                e.preventDefault();
+                if (tabs.length > 1) {
+                    closeTab(activeTabId);
+                }
+            }
+            // Ctrl+L - Focus address bar
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                urlBar.focus();
+                urlBar.select();
+            }
+            // Ctrl+R - Refresh
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshBtn.click();
+            }
+        });
 
         // Menu functions
         menuBtn.addEventListener('click', (e) => {
@@ -1476,8 +1830,83 @@
             if (confirm('Are you sure you want to reset all local data? This will clear your settings and refresh the page.')) {
                 localStorage.removeItem('nolanproxy_theme');
                 localStorage.removeItem('nolanproxy_bgeffect');
+                localStorage.removeItem('nolanproxy_bookmarks');
+                localStorage.removeItem('nolanproxy_recent');
+                localStorage.removeItem('nolanproxy_cloaking');
                 location.reload();
             }
+        };
+
+        window.changeTabCloaking = function(mode) {
+            tabCloaking = mode;
+            localStorage.setItem('nolanproxy_cloaking', mode);
+            applyTabCloaking();
+        };
+
+        function applyTabCloaking() {
+            const faviconLink = document.querySelector("link[rel*='icon']") || document.createElement('link');
+            faviconLink.type = 'image/png';
+            faviconLink.rel = 'icon';
+            
+            switch(tabCloaking) {
+                case 'googledocs':
+                    document.title = 'Google Docs';
+                    faviconLink.href = 'https://www.nolangraysongames.com/googledocslogo.png';
+                    break;
+                case 'googleclassroom':
+                    document.title = 'Google Classroom';
+                    faviconLink.href = 'https://www.nolangraysongames.com/googleclassroomlogo.png';
+                    break;
+                case 'schoology':
+                    document.title = 'Schoology';
+                    faviconLink.href = 'https://www.nolangraysongames.com/schoologylogo.png';
+                    break;
+                default:
+                    document.title = "Nolan's Proxy";
+                    faviconLink.href = 'https://www.nolangraysongames.com/Logo.png';
+            }
+            
+            document.head.appendChild(faviconLink);
+        }
+
+        function addToRecentlyVisited(title, url) {
+            const item = { title, url };
+            recentlyVisited = recentlyVisited.filter(r => r.url !== url);
+            recentlyVisited.unshift(item);
+            recentlyVisited = recentlyVisited.slice(0, 10);
+            localStorage.setItem('nolanproxy_recent', JSON.stringify(recentlyVisited));
+        }
+
+        function renderBookmarks() {
+            const bookmarksHTML = bookmarks.map((bookmark, index) => `
+                <div class="bookmark-item" onclick="loadPage('${bookmark.url}')">
+                    <span>${bookmark.title}</span>
+                    <span class="bookmark-delete" onclick="event.stopPropagation(); deleteBookmark(${index})">×</span>
+                </div>
+            `).join('');
+            
+            const currentTab = getActiveTab();
+            const canBookmark = currentTab && currentTab.url && currentTab.url !== '';
+            
+            bookmarksBar.innerHTML = bookmarksHTML + (canBookmark ? '<button class="add-bookmark-btn" onclick="addCurrentBookmark()">+ Bookmark</button>' : '');
+        }
+
+        window.addCurrentBookmark = function() {
+            const tab = getActiveTab();
+            if (!tab || !tab.url) return;
+            
+            const bookmark = { title: tab.title, url: tab.url };
+            if (!bookmarks.find(b => b.url === bookmark.url)) {
+                bookmarks.push(bookmark);
+                localStorage.setItem('nolanproxy_bookmarks', JSON.stringify(bookmarks));
+                renderBookmarks();
+            }
+        };
+
+        window.deleteBookmark = function(index) {
+            bookmarks.splice(index, 1);
+            localStorage.setItem('nolanproxy_bookmarks', JSON.stringify(bookmarks));
+            renderBookmarks();
         };
 
         window.filterGames = function(searchTerm) {

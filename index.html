@@ -644,6 +644,32 @@
             justify-content: center;
             height: 100%;
             padding: 20px;
+            position: relative;
+        }
+
+        .github-logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 48px;
+            height: 48px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            opacity: 0.8;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 4px;
+            background: white;
+        }
+
+        body.dark-theme .github-logo {
+            border-color: #5568d3;
+            background: #2d2d2d;
+        }
+
+        .github-logo:hover {
+            transform: scale(1.1);
+            opacity: 1;
         }
 
         .search-logo {
@@ -862,6 +888,10 @@
                     <span>Portal</span>
                     <span class="external-icon">↗</span>
                 </div>
+                <div class="dropdown-item" onclick="openOfficialWebsite()">
+                    <span>Official Website</span>
+                    <span class="external-icon">↗</span>
+                </div>
             </div>
             <div class="tabs-container" id="tabsContainer"></div>
         </div>
@@ -966,6 +996,11 @@
             urlBar.value = tab.url;
             renderTabs();
             updateNav();
+            
+            // Reattach listeners if on home page
+            if (!tab.content || tab.content.includes('search-page')) {
+                attachSearchListeners();
+            }
         }
 
         function renderTabs() {
@@ -1014,6 +1049,9 @@
         function getHomePageHTML() {
             return `
                 <div class="search-page">
+                    <a href="https://github.com/NolanBetter/nolansproxy.github.io" target="_blank">
+                        <img src="https://www.nolangraysongames.com/githublogo.png" alt="GitHub" class="github-logo">
+                    </a>
                     <div class="search-logo">Nolan's Proxy</div>
                     <div class="search-box">
                         <input type="text" class="search-input" id="searchInput" placeholder="Search the web...">
@@ -1161,10 +1199,13 @@
         function handleSearch(query) {
             if (!query.trim()) return;
             
+            // Check if it looks like a URL (contains a dot and no spaces)
             if (query.includes('.') && !query.includes(' ')) {
                 loadPage(query);
             } else {
-                showResults(query);
+                // Search using Google with iframe parameter
+                const googleUrl = `https://www.google.com/search?igu=1&q=${encodeURIComponent(query)}`;
+                loadPage(googleUrl);
             }
         }
 
@@ -1340,6 +1381,11 @@
 
         window.openPortal = function() {
             window.open('https://www.nolangraysongames.com', '_blank');
+            dropdownMenu.classList.remove('show');
+        };
+
+        window.openOfficialWebsite = function() {
+            window.open('https://www.nolansproxy.com', '_blank');
             dropdownMenu.classList.remove('show');
         };
 

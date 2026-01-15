@@ -121,10 +121,14 @@
             border-radius: 12px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
-            display: flex;
+            display: none;
             flex-direction: column;
             transition: background 0.3s;
             animation: browserFadeIn 0.5s ease-out;
+        }
+
+        .browser-window.visible {
+            display: flex;
         }
 
         @keyframes browserFadeIn {
@@ -834,6 +838,107 @@
             color: #b0b0b0;
         }
 
+        /* Loading Screen Styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            transition: color 0.3s ease;
+            text-align: center;
+        }
+
+        .loading-text.success {
+            color: #00ff00;
+            opacity: 1;
+        }
+
+        .loading-text.error {
+            color: #ff0000;
+            opacity: 1;
+        }
+
+        .loading-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .spinner {
+            position: absolute;
+            top: -30px;
+            left: -30px;
+            width: calc(100% + 60px);
+            height: calc(100% + 60px);
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner.hidden {
+            opacity: 0;
+        }
+
+        .spinner-circle {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 3;
+            stroke-dasharray: 70, 213;
+            stroke-linecap: round;
+            transform-origin: center;
+            animation: spin 2s linear infinite;
+            filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1));
+            transition: stroke 0.3s ease, filter 0.3s ease;
+        }
+
+        .spinner-circle.error {
+            stroke: #ff0000;
+            filter: drop-shadow(0 0 12px rgba(255, 0, 0, 1));
+            animation: spin-reverse 2s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin-reverse {
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
         .tabs-container {
             display: flex;
             overflow-x: auto;
@@ -1150,7 +1255,19 @@
     </style>
 </head>
 <body>
-    <div class="browser-window">
+    <div id="loading-screen">
+        <div class="loading-wrapper">
+            <div class="logo-container">
+                <img src="https://www.nolangraysongames.com/Logo.png" alt="Logo" class="loading-logo">
+                <svg class="spinner" viewBox="0 0 100 100">
+                    <circle class="spinner-circle" cx="50" cy="50" r="45"/>
+                </svg>
+            </div>
+            <div class="loading-text">LOADING...</div>
+        </div>
+    </div>
+
+    <div class="browser-window" id="browser-window">
         <div class="browser-header">
             <div class="top-bar">
                 <div class="traffic-lights">
@@ -1960,6 +2077,63 @@
 
         // Initialize first tab
         createTab();
+    </script>
+
+    <script>
+        // Loading Screen Logic
+        const loadTime = Math.random() * 7000 + 3000; // Random time between 3-10 seconds
+        const hasError = Math.random() < 0.05; // 5% chance of error
+
+        setTimeout(() => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const browserWindow = document.getElementById('browser-window');
+            const spinner = document.querySelector('.spinner');
+            const spinnerCircle = document.querySelector('.spinner-circle');
+            const loadingText = document.querySelector('.loading-text');
+            
+            if (hasError) {
+                // Show error state
+                spinnerCircle.classList.add('error');
+                loadingText.classList.add('error');
+                loadingText.textContent = 'LOADING UNSUCCESSFULLY';
+                
+                // After 5 seconds, show refreshing message
+                setTimeout(() => {
+                    // Refreshing takes 10-30 seconds
+                    const refreshTime = Math.random() * 20000 + 10000;
+                    let countdown = Math.ceil(refreshTime / 1000);
+                    
+                    // Update countdown every second
+                    const updateCountdown = () => {
+                        loadingText.textContent = `REFRESHING - DO NOT REFRESH THE PAGE (${countdown})`;
+                        countdown--;
+                    };
+                    
+                    updateCountdown();
+                    const countdownInterval = setInterval(updateCountdown, 1000);
+                    
+                    setTimeout(() => {
+                        clearInterval(countdownInterval);
+                        // Refresh the page
+                        location.reload();
+                    }, refreshTime);
+                }, 5000);
+            } else {
+                // Normal success path
+                spinner.classList.add('hidden');
+                loadingText.classList.add('success');
+                loadingText.textContent = 'LOADED SUCCESSFULLY';
+                
+                setTimeout(() => {
+                    loadingScreen.classList.add('hidden');
+                    browserWindow.classList.add('visible');
+                    
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }, 800);
+            }
+        }, loadTime);
     </script>
 </body>
 </html>

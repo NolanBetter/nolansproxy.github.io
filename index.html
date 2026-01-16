@@ -390,6 +390,27 @@
             background: #f1f3f4;
         }
 
+        .dropdown-item.discord-item {
+            background: #5865F2;
+            color: white;
+        }
+
+        .dropdown-item.discord-item:hover {
+            background: #4752C4;
+        }
+
+        .dropdown-item.discord-item .external-icon {
+            color: white;
+        }
+
+        body.dark-theme .dropdown-item.discord-item {
+            background: #5865F2;
+        }
+
+        body.dark-theme .dropdown-item.discord-item:hover {
+            background: #4752C4;
+        }
+
         .external-icon {
             font-size: 12px;
             color: #5f6368;
@@ -1296,6 +1317,10 @@
                     <span>Official Website</span>
                     <span class="external-icon">↗</span>
                 </div>
+                <div class="dropdown-item discord-item" onclick="openDiscord()">
+                    <span>Discord</span>
+                    <span class="external-icon">↗</span>
+                </div>
             </div>
             <div class="tabs-container" id="tabsContainer"></div>
         </div>
@@ -1381,10 +1406,112 @@
                 url: 'Basketball Stars.html'
             },
             {
-                title: 'Geometry Dash',
+                title: 'Drift Hunters',
+                desc: 'I Dont Know, You Drift A Car Dumbass',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/173.png',
+                url: 'Drift Hunters.html'
+            },
+            {
+                title: 'Rooftop Snipers',
+                desc: 'You Shoot Play On A Rooftop',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/283.png',
+                url: 'Rooftop Snipers.html'
+            },
+            {
+                title: 'Rooftop Snipers 2',
+                desc: 'You Shoot Play On A Rooftop 2',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/490.png',
+                url: 'Rooftop Snipers 2.html'
+            },
+            {
+                title: 'Learn to Fly',
+                desc: 'You lanch a Penguin',
+                image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7xqnpQ551IdMkKGhyn3R3-fHVFQa1E3rjcQ&s',
+                url: 'Learn to Fly.html'
+            },
+            {
+                title: 'Learn to Fly 2',
+                desc: 'You lanch a Penguin 2',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/341.png',
+                url: 'Learn to Fly 2.html'
+            },
+            {
+                title: 'Learn to Fly 3',
+                desc: 'You lanch a Penguin 3!!!!!!',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/342.png',
+                url: 'Learn to Fly 3.html'
+            },
+            {
+                title: 'Learn to Fly Idle',
+                desc: 'You lanch a Penguin 3.5',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/343.png',
+                url: 'Learn to Fly Idle.html'
+            },
+            {
+                title: 'Slope 2',
+                desc: 'Navigate a ball down a steep slope 2 Player',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/368.png',
+                url: 'Slope 2.html'
+            },
+            {
+                title: 'OvO',
+                desc: 'An Very Fun Platform Game',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/1.png',
+                url: 'OvO.html'
+            },
+            {
+                title: 'OvO 2',
+                desc: 'OvO but with New levels',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/2.png',
+                url: 'OvO 2.html'
+            },
+            {
+                title: 'OvO 3 Dimensions',
+                desc: 'OvO and OvO 2 but with New levels And It 3D !WoW!',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/3.png',
+                url: 'OvO 3 Dimensions.html'
+            },
+            {
+                title: 'Eaglercraft 1.5.2',
+                desc: 'A Minecraft Version For The Web',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/297.png',
+                url: 'Eaglercraft 152.html'
+            },
+            {
+                title: 'Eaglercraft 1.8.8',
+                desc: 'A Minecraft Version For The Web',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/181.png',
+                url: 'Eaglercraft 188.html'
+            },
+            {
+                title: 'Eaglercraft 1.11.2',
+                desc: 'A Minecraft Version For The Web(Only Found On Nolans Proxy)',
+                image: 'https://www.nolangraysongames/Noimagehere.png',
+                url: 'Eaglercraft 1112.html'
+            },
+            {
+                title: 'Eaglercraft 1.12.2',
+                desc: 'A Minecraft Version For The Web',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/182.png',
+                url: 'Eaglercraft 1122.html'
+            },
+            {
+                title: 'Eaglercraft 1.21.4',
+                desc: 'A Minecraft Version For The Web',
+                image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/183.png',
+                url: 'Minecraft 1214.html'
+            },
+            {
+                title: 'Geometry Dash Lite',
                 desc: 'Rhythm-based platformer',
                 image: 'https://cdn.jsdelivr.net/gh/gn-math/covers@main/27.png',
                 url: 'Geometry Dash Lite.html'
+            },
+            {
+                title: 'Coming Soon',
+                desc: 'Coming Soon',
+                image: 'https://www.nolangraysongames.com/Comingsoon.png',
+                url: '404.html'
             }
         ];
 
@@ -1418,6 +1545,12 @@
         }
 
         function createTab() {
+            // Limit to 3 tabs maximum
+            if (tabs.length >= 3) {
+                alert('Maximum of 3 tabs allowed');
+                return null;
+            }
+            
             const tab = new Tab(tabIdCounter++);
             tabs.push(tab);
             renderTabs();
@@ -1476,14 +1609,19 @@
                 </button>
             `).join('');
             
-            tabsContainer.innerHTML = tabsHTML + '<button class="new-tab-btn" id="newTabBtn">+</button>';
+            const showNewTabBtn = tabs.length < 3;
+            const newTabButton = showNewTabBtn ? '<button class="new-tab-btn" id="newTabBtn">+</button>' : '';
+            
+            tabsContainer.innerHTML = tabsHTML + newTabButton;
             
             // Re-attach new tab button listener
-            const newTabButton = document.getElementById('newTabBtn');
-            if (newTabButton) {
-                newTabButton.addEventListener('click', () => {
-                    createTab();
-                });
+            if (showNewTabBtn) {
+                const newTabButton = document.getElementById('newTabBtn');
+                if (newTabButton) {
+                    newTabButton.addEventListener('click', () => {
+                        createTab();
+                    });
+                }
             }
         }
 
@@ -1908,6 +2046,11 @@
 
         window.openOfficialWebsite = function() {
             window.open('https://www.nolansproxy.com', '_blank');
+            dropdownMenu.classList.remove('show');
+        };
+
+        window.openDiscord = function() {
+            window.open('https://discord.gg/nNCWgRJZ7v', '_blank');
             dropdownMenu.classList.remove('show');
         };
 

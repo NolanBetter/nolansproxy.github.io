@@ -1547,8 +1547,8 @@
 
         .logo-container {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 300px;
+            height: 300px;
             margin: 0 auto 40px;
         }
 
@@ -1557,8 +1557,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 160px;
-            height: 160px;
+            width: 200px;
+            height: 200px;
             object-fit: contain;
         }
 
@@ -1585,13 +1585,22 @@
             to { transform: rotate(360deg); }
         }
 
+        @keyframes spinReverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        .spinner.error {
+            animation: spinReverse 2s linear infinite;
+        }
+
         .spinner-circle {
             fill: none;
             stroke: white;
             stroke-width: 4;
             stroke-linecap: round;
-            stroke-dasharray: 350;
-            stroke-dashoffset: 100;
+            stroke-dasharray: 200;
+            stroke-dashoffset: 150;
             filter: drop-shadow(0 0 8px rgba(255,255,255,0.9));
         }
 
@@ -1935,7 +1944,7 @@
             {
                 title: 'Eaglercraft 1.11.2',
                 desc: 'A Minecraft Version For The Web(Only Found On Nolans Proxy)',
-                image: 'https://www.nolangraysongames.com/Minecraft1112.png',
+                image: 'https://www.nolangraysongames.com/Noimagehere.png',
                 url: 'Eaglercraft 1112.html'
             },
             {
@@ -2125,7 +2134,7 @@
         }
 
         // ⭐ NEW: Proper history management with proxied URLs ⭐
-        function addToHistory(url) {
+        function addToHistory(viewOrUrl) {
             const tab = getActiveTab();
             if (!tab) return;
             
@@ -2134,7 +2143,23 @@
                 tab.history = tab.history.slice(0, tab.historyIndex + 1);
             }
             
-            tab.history.push(url);
+            // If it's a string (URL), convert to view object
+            let historyItem;
+            if (typeof viewOrUrl === 'string') {
+                if (viewOrUrl.startsWith('settings')) {
+                    historyItem = { type: 'settings', data: null };
+                } else if (viewOrUrl.startsWith('games')) {
+                    historyItem = { type: 'games', data: null };
+                } else if (viewOrUrl.startsWith('game:')) {
+                    historyItem = { type: 'game', data: { url: viewOrUrl.replace('game:', ''), title: 'Game' } };
+                } else {
+                    historyItem = { type: 'iframe', data: { url: viewOrUrl } };
+                }
+            } else {
+                historyItem = viewOrUrl;
+            }
+            
+            tab.history.push(historyItem);
             tab.historyIndex++;
             updateNavButtons();
             saveSession();
@@ -2338,7 +2363,7 @@
             const recentHTML = recentlyVisited.length > 0 ? `
                 <div class="recently-visited">
                     <div class="recently-visited-title">Recently Visited</div>
-                    ${recentlyVisited.slice(0, 3).map(item => `
+                    ${recentlyVisited.slice(0, 1).map(item => `
                         <div class="recent-item" onclick="loadURL('${item.url}')">
                             <div>
                                 <div class="recent-item-title">${item.title}</div>
@@ -2589,8 +2614,30 @@
             if (!tab || tab.historyIndex <= 0) return;
             
             tab.historyIndex--;
-            const url = tab.history[tab.historyIndex];
-            loadURL(url);
+            
+            // Get the history item and check if it's a special view
+            const historyItem = tab.history[tab.historyIndex];
+            
+            // Check if this is a view object or a URL string
+            if (typeof historyItem === 'object' && historyItem.type) {
+                resolveHistoryItem(historyItem);
+            } else if (typeof historyItem === 'string') {
+                // Handle old-style history (just URLs or special strings)
+                if (historyItem.startsWith('settings')) {
+                    tab.view = { type: 'settings', data: null };
+                    renderSettings();
+                } else if (historyItem.startsWith('games')) {
+                    tab.view = { type: 'games', data: null };
+                    renderGames();
+                } else if (historyItem.startsWith('game:')) {
+                    // This would need the game title too, but we'll just reload games page
+                    tab.view = { type: 'games', data: null };
+                    renderGames();
+                } else {
+                    renderIframe(historyItem);
+                }
+            }
+            
             updateNavButtons();
         });
 
@@ -2599,8 +2646,30 @@
             if (!tab || tab.historyIndex >= tab.history.length - 1) return;
             
             tab.historyIndex++;
-            const url = tab.history[tab.historyIndex];
-            loadURL(url);
+            
+            // Get the history item and check if it's a special view
+            const historyItem = tab.history[tab.historyIndex];
+            
+            // Check if this is a view object or a URL string
+            if (typeof historyItem === 'object' && historyItem.type) {
+                resolveHistoryItem(historyItem);
+            } else if (typeof historyItem === 'string') {
+                // Handle old-style history (just URLs or special strings)
+                if (historyItem.startsWith('settings')) {
+                    tab.view = { type: 'settings', data: null };
+                    renderSettings();
+                } else if (historyItem.startsWith('games')) {
+                    tab.view = { type: 'games', data: null };
+                    renderGames();
+                } else if (historyItem.startsWith('game:')) {
+                    // This would need the game title too, but we'll just reload games page
+                    tab.view = { type: 'games', data: null };
+                    renderGames();
+                } else {
+                    renderIframe(historyItem);
+                }
+            }
+            
             updateNavButtons();
         });
 
@@ -2608,11 +2677,14 @@
             const tab = getActiveTab();
             if (!tab || tab.historyIndex < 0) return;
             
-            const url = tab.history[tab.historyIndex];
-            if (url) {
-                renderIframe(url); // Don't add to history on refresh
-            } else {
+            // Check what type of view we're currently on
+            if (tab.view) {
                 resolveHistoryItem(tab.view);
+            } else if (tab.history[tab.historyIndex]) {
+                const url = tab.history[tab.historyIndex];
+                if (url) {
+                    renderIframe(url);
+                }
             }
         });
 
@@ -2694,7 +2766,7 @@
             if (!tab) return;
             
             tab.view = { type: 'settings', data: null };
-            addToHistory('settings');
+            addToHistory({ type: 'settings', data: null });
             renderSettings();
         };
 
@@ -2703,7 +2775,7 @@
             if (!tab) return;
             
             tab.view = { type: 'games', data: null };
-            addToHistory('games');
+            addToHistory({ type: 'games', data: null });
             renderGames();
         };
 
@@ -3140,6 +3212,7 @@
             
             if (hasError) {
                 // Show error state
+                spinner.classList.add('error');
                 spinnerCircle.classList.add('error');
                 loadingText.classList.add('error');
                 loadingText.textContent = 'LOADING UNSUCCESSFULLY';

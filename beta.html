@@ -3255,5 +3255,157 @@
             }
         }, loadTime);
     </script>
+
+    <script>
+        // Image Proxy Fix - Routes images through proxy to avoid CORS/blocking issues
+        const PROXY = 'https://nolansproxy-backend.vercel.app/api/proxy';
+
+        function rewriteImages(iframe) {
+            try {
+                const doc = iframe.contentDocument;
+                
+                // Silently return if we can't access - this is expected for cross-origin iframes
+                if (!doc) return;
+                
+                const base = iframe.contentWindow.location.href;
+
+                // <img> - handles both src and data-src (lazy-loaded)
+                doc.querySelectorAll('img').forEach(img => {
+                    const raw =
+                        img.getAttribute('src') ||
+                        img.getAttribute('data-src');
+
+                    if (!raw || raw.startsWith('data:')) return;
+
+                    const absolute = new URL(raw, base).href;
+                    img.src = PROXY + '?url=' + encodeURIComponent(absolute);
+                });
+
+                // <img srcset> - for responsive images
+                doc.querySelectorAll('img[srcset]').forEach(img => {
+                    const srcset = img.getAttribute('srcset');
+                    if (!srcset) return;
+
+                    const rewritten = srcset
+                        .split(',')
+                        .map(entry => {
+                            const [url, size] = entry.trim().split(/\s+/);
+                            if (!url || url.startsWith('data:')) return entry;
+                            
+                            const abs = new URL(url, base).href;
+                            return PROXY + '?url=' + encodeURIComponent(abs) + (size ? ' ' + size : '');
+                        })
+                        .join(', ');
+
+                    img.srcset = rewritten;
+                });
+
+                // <source> (video / picture)
+                doc.querySelectorAll('source[src]').forEach(source => {
+                    const absolute = new URL(source.src, base).href;
+                    source.src = PROXY + '?url=' + encodeURIComponent(absolute);
+                });
+
+                // <source srcset> - for picture elements
+                doc.querySelectorAll('source[srcset]').forEach(source => {
+                    const srcset = source.getAttribute('srcset');
+                    if (!srcset) return;
+
+                    const rewritten = srcset
+                        .split(',')
+                        .map(entry => {
+                            const [url, size] = entry.trim().split(/\s+/);
+                            if (!url || url.startsWith('data:')) return entry;
+                            
+                            const abs = new URL(url, base).href;
+                            return PROXY + '?url=' + encodeURIComponent(abs) + (size ? ' ' + size : '');
+                        })
+                        .join(', ');
+
+                    source.srcset = rewritten;
+                });
+
+                // Set up MutationObserver to catch dynamically loaded images
+                const observer = new MutationObserver(mutations => {
+                    mutations.forEach(mutation => {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeType === 1) { // Element node
+                                // Check if the added node is an image
+                                if (node.tagName === 'IMG') {
+                                    const raw = node.getAttribute('src') || node.getAttribute('data-src');
+                                    if (raw && !raw.startsWith('data:') && !raw.includes(PROXY)) {
+                                        const absolute = new URL(raw, base).href;
+                                        node.src = PROXY + '?url=' + encodeURIComponent(absolute);
+                                    }
+
+                                    // Handle srcset on dynamically added images
+                                    const srcset = node.getAttribute('srcset');
+                                    if (srcset && !srcset.includes(PROXY)) {
+                                        const rewritten = srcset
+                                            .split(',')
+                                            .map(entry => {
+                                                const [url, size] = entry.trim().split(/\s+/);
+                                                if (!url || url.startsWith('data:')) return entry;
+                                                
+                                                const abs = new URL(url, base).href;
+                                                return PROXY + '?url=' + encodeURIComponent(abs) + (size ? ' ' + size : '');
+                                            })
+                                            .join(', ');
+                                        node.srcset = rewritten;
+                                    }
+                                }
+
+                                // Check for images within the added node
+                                if (node.querySelectorAll) {
+                                    node.querySelectorAll('img').forEach(img => {
+                                        const raw = img.getAttribute('src') || img.getAttribute('data-src');
+                                        if (raw && !raw.startsWith('data:') && !raw.includes(PROXY)) {
+                                            const absolute = new URL(raw, base).href;
+                                            img.src = PROXY + '?url=' + encodeURIComponent(absolute);
+                                        }
+
+                                        const srcset = img.getAttribute('srcset');
+                                        if (srcset && !srcset.includes(PROXY)) {
+                                            const rewritten = srcset
+                                                .split(',')
+                                                .map(entry => {
+                                                    const [url, size] = entry.trim().split(/\s+/);
+                                                    if (!url || url.startsWith('data:')) return entry;
+                                                    
+                                                    const abs = new URL(url, base).href;
+                                                    return PROXY + '?url=' + encodeURIComponent(abs) + (size ? ' ' + size : '');
+                                                })
+                                                .join(', ');
+                                            img.srcset = rewritten;
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                    });
+                });
+
+                // Start observing
+                observer.observe(doc.body, {
+                    childList: true,
+                    subtree: true
+                });
+
+            } catch (e) {
+                // Silently fail - cross-origin restrictions are expected
+            }
+        }
+
+        // Hook iframe loads
+        document.addEventListener(
+            'load',
+            e => {
+                if (e.target.tagName === 'IFRAME') {
+                    rewriteImages(e.target);
+                }
+            },
+            true
+        );
+    </script>
 </body>
 </html>

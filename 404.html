@@ -1,24 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 - Page Not Found</title>
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      body {
-        background-image: url("https://www.nolangraysongames.com/404.png"); /* change path if needed */
-        background-size: cover;      /* fills screen */
-        background-position: center; /* centers image */
-        background-repeat: no-repeat;
-      }
+        body {
+            min-height: 100vh;
+            background: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 20px;
+            max-width: 90%;
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 15px;
+            }
+        }
+
+        .glitch {
+            font-size: clamp(60px, 15vw, 120px);
+            font-weight: bold;
+            letter-spacing: clamp(5px, 1vw, 10px);
+            margin-bottom: 20px;
+            animation: glitch 1s infinite;
+            text-shadow: 
+                2px 2px 0 #00ffff,
+                -2px -2px 0 #ff00ff;
+        }
+
+        @keyframes glitch {
+            0%, 100% {
+                text-shadow: 
+                    2px 2px 0 #00ffff,
+                    -2px -2px 0 #ff00ff;
+            }
+            25% {
+                text-shadow: 
+                    -2px 2px 0 #00ffff,
+                    2px -2px 0 #ff00ff;
+            }
+            50% {
+                text-shadow: 
+                    2px -2px 0 #00ffff,
+                    -2px 2px 0 #ff00ff;
+            }
+            75% {
+                text-shadow: 
+                    -2px -2px 0 #00ffff,
+                    2px 2px 0 #ff00ff;
+            }
+        }
+
+        h2 {
+            font-size: clamp(20px, 4vw, 32px);
+            margin-bottom: 15px;
+            color: #00ffff;
+        }
+
+        p {
+            font-size: clamp(14px, 2.5vw, 18px);
+            margin-bottom: 30px;
+            color: #ccc;
+            padding: 0 20px;
+        }
+
+        .logo {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 3;
+            max-width: clamp(80px, 15vw, 120px);
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                bottom: 15px;
+                left: 15px;
+            }
+        }
+
+        .logo:hover {
+            opacity: 1;
+        }
+
+
     </style>
-  </head>
-  <body></body>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <img src="https://www.nolangraysongames.com/Logo.png" alt="Nolan Grayson Games" class="logo">
+    
+    <div class="content">
+        <h1 class="glitch">404</h1>
+        <h2>Page Not Found</h2>
+        <p>The page you're looking for seems to have drifted into the void.</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let mouse = {
+            x: null,
+            y: null,
+            radius: 100
+        };
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        let ripples = [];
+
+        canvas.addEventListener('click', (e) => {
+            ripples.push({
+                x: e.x,
+                y: e.y,
+                radius: 0,
+                maxRadius: 150,
+                speed: 3,
+                opacity: 1
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initMatrix();
+        });
+
+        const fontSize = 14;
+        let columns;
+        let drops = [];
+
+        // Characters for the matrix effect - mix of code symbols and Japanese katakana
+        const matrixChars = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ01234567890!@#$%^&*(){}[]<>?/|\\';
+
+        function initMatrix() {
+            columns = Math.floor(canvas.width / fontSize);
+            drops = [];
+            for (let i = 0; i < columns; i++) {
+                drops[i] = {
+                    y: Math.random() * -100,
+                    speed: Math.random() * 0.5 + 0.5,
+                    offset: 0
+                };
+            }
+        }
+
+        initMatrix();
+
+        function drawMatrix() {
+            // Semi-transparent black to create fade effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const x = i * fontSize;
+                const y = drops[i].y * fontSize;
+
+                // Calculate distance from mouse
+                let offsetX = 0;
+                if (mouse.x && mouse.y) {
+                    const dx = x - mouse.x;
+                    const dy = y - mouse.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < mouse.radius) {
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        offsetX = (dx / distance) * force * 30;
+                        drops[i].offset = offsetX;
+                    } else {
+                        drops[i].offset *= 0.95; // Gradually return to position
+                    }
+                } else {
+                    drops[i].offset *= 0.95;
+                }
+
+                // Random character
+                const char = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                
+                // Alternate between cyan and magenta
+                const color = Math.random() > 0.5 ? '#00ffff' : '#ff00ff';
+                
+                // Brighter at the head of the drop
+                ctx.fillStyle = color;
+                ctx.fillText(char, x + drops[i].offset, y);
+
+                // Add a bright glow at the leading character
+                if (y > 0 && y < canvas.height) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = color;
+                    ctx.fillText(char, x + drops[i].offset, y);
+                    ctx.shadowBlur = 0;
+                }
+
+                // Reset drop to top randomly after it goes off screen
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i].y = 0;
+                }
+
+                drops[i].y += drops[i].speed;
+            }
+
+            // Draw and update ripples
+            ripples = ripples.filter(ripple => {
+                ctx.strokeStyle = `rgba(0, 255, 255, ${ripple.opacity})`;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.strokeStyle = `rgba(255, 0, 255, ${ripple.opacity})`;
+                ctx.beginPath();
+                ctx.arc(ripple.x, ripple.y, ripple.radius - 10, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ripple.radius += ripple.speed;
+                ripple.opacity -= 0.01;
+
+                return ripple.opacity > 0 && ripple.radius < ripple.maxRadius;
+            });
+        }
+
+        function animate() {
+            drawMatrix();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
 </html>
